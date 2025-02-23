@@ -32,6 +32,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
         var customer = await _customerService.GetCustomerAsync(form.Customer.CustomerName);
         if (customer == null)
         {
+            Console.WriteLine();
             Console.WriteLine("Customer not found. Creating new customer: " + form.Customer.CustomerName);
             var result = await _customerService.CreateCustomerAsync(form.Customer);
             if (!result)
@@ -151,23 +152,23 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
 
             if (foundStatus != null)
                 projectEntity.Status = foundStatus;
-            else
-                Console.WriteLine("Status not found for Status: " + form.Status);
+            //else
+            //    Console.WriteLine("Status not found for Status: " + form.Status);
 
             var customer = await _context.Customers
-            .FirstOrDefaultAsync(c => EF.Functions.Collate(c.CustomerName, "SQL_Latin1_General_CP1_CI_AS") == form.Customer);
+            .FirstOrDefaultAsync(c => c.CustomerName == form.Customer);
 
             if (customer != null)
                 projectEntity.Customer = customer;
-            else
-                Console.WriteLine("Customer not found for CustomerName: " + form.Customer);
+            //else
+            //    Console.WriteLine("Customer not found for CustomerName: " + form.Customer);
 
             var product = await _context.Products
-            .FirstOrDefaultAsync(p => EF.Functions.Collate(p.ProductName, "SQL_Latin1_General_CP1_CI_AS") == form.ProductName);
+            .FirstOrDefaultAsync(p => p.ProductName == form.ProductName);
             if (product != null)
                 projectEntity.Product = product;
-            else
-                Console.WriteLine("Product not found for ProductName: " + form.ProductName);
+            //else
+            //    Console.WriteLine("Product not found for ProductName: " + form.ProductName);
 
             if (!string.IsNullOrEmpty(form.UserFirstName) && projectEntity.User != null)
                 projectEntity.User.FirstName = form.UserFirstName;
@@ -186,10 +187,6 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
                 projectEntity.Product.Price = form.ProductPrice;
                 _context.Entry(projectEntity.Product).State = EntityState.Modified;
             }
-
-            //_context.Entry(projectEntity).State = EntityState.Modified;
-            //if (projectEntity.User != null)
-            //    _context.Entry(projectEntity.User).State = EntityState.Modified;
 
            
             var changes = await _context.SaveChangesAsync();

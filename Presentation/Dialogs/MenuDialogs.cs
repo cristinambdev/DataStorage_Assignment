@@ -62,7 +62,6 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
             project.User.FirstName = Console.ReadLine()!;
             Console.Write("Project Manager(Last Name): ");
             project.User.LastName = Console.ReadLine()!;
-
             Console.Write("Customer: ");
             project.Customer.CustomerName = Console.ReadLine()!;
 
@@ -136,8 +135,10 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
     {
         Console.Clear();
         Console.WriteLine("### VIEW PROJECT ###");
-        
+        Console.WriteLine();
+
         Console.Write("Project Title: ");
+        Console.WriteLine();
 
         var title = Console.ReadLine()!;
 
@@ -270,27 +271,6 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
                 projectUpdateForm.ProductPrice = result.ProductPrice;  // Keep current price
 
 
-            // Check if any changes have been made- chat gpt
-            // Debugging: Log the form data to ensure it's being updated
-            Console.WriteLine("Debugging: Form Values:");
-            Console.WriteLine($"Title: {projectUpdateForm.Title}");
-            Console.WriteLine($"Description: {projectUpdateForm.Description}");
-            Console.WriteLine($"Start Date: {projectUpdateForm.StartDate}");
-            Console.WriteLine($"End Date: {projectUpdateForm.EndDate}");
-            Console.WriteLine($"Status: {projectUpdateForm.Status}");
-            Console.WriteLine($"Project Manager First Name: {projectUpdateForm.UserFirstName}");
-            Console.WriteLine($"Project Manager Last Name: {projectUpdateForm.UserLastName}");
-            Console.WriteLine($"Customer: {projectUpdateForm.Customer}");
-            Console.WriteLine($"Product: {projectUpdateForm.ProductName}");
-            Console.WriteLine($"Price: {projectUpdateForm.ProductPrice}");
-            Console.WriteLine("-----------------------------------");
-
-
-
-            //call service to update the project
-            Console.WriteLine($"Debugging: Customer in form: {projectUpdateForm.Customer}");
-            Console.WriteLine($"Debugging: Product in form: {projectUpdateForm.ProductName}");
-
             var updatedProject = await _projectService.UpdateProjectAsync(result.Id, projectUpdateForm);
 
             if (updatedProject != null)
@@ -322,6 +302,7 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
     {
         Console.Clear();
         Console.WriteLine("### DELETE PROJECT ###");
+        Console.WriteLine();
 
         Console.Write("Project Title: ");
         var selectedTitle = Console.ReadLine()!;
@@ -340,7 +321,7 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
                 var project = ((Result<Project>)result).Data;  // Access the project from the result
                 await _projectService.DeleteProjectAsync(project!.Id);  // Use the project's Id
                 await _projectRepository.SaveAsync();
-                Console.WriteLine($"Project {project.Title} was deleted successfully");
+                Console.WriteLine($"Project '{project.Title}' was deleted successfully");
             }
             
             
