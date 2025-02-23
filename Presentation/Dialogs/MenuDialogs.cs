@@ -216,13 +216,13 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
             // Collect user input for fields, only update non-empty inputs
             Console.Write("Title: ");
             var title = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(title) && title != result.Title)
-                projectUpdateForm.Title = title;
+            projectUpdateForm.Title = !string.IsNullOrWhiteSpace(title) ? title : result.Title;
+
 
             Console.Write("Description: ");
             var description = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(description) && description != result.Description)
-                projectUpdateForm.Description = description;
+            projectUpdateForm.Description = !string.IsNullOrWhiteSpace(description) ? description : result.Description;
+
 
             Console.Write("Start Date (yyyy-MM-dd): ");//Chat GPT
             var startDate = Console.ReadLine();
@@ -240,28 +240,27 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
 
             Console.Write("Status (Not Started, Ongoing, Finished): ");
             var status = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(status) && status != result.Status)
-                projectUpdateForm.Status = status;
+            projectUpdateForm.Status = !string.IsNullOrWhiteSpace(status) ? status : result.Status;
+
 
             Console.Write("Project Manager (First Name): ");
             var userFirstName = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(userFirstName) && userFirstName != result.UserFirstName)
-                projectUpdateForm.UserFirstName = userFirstName;
+            projectUpdateForm.UserFirstName = !string.IsNullOrWhiteSpace(userFirstName) ? userFirstName : result.UserFirstName;
+
 
             Console.Write("Project Manager (Last Name): ");
             var userLastName = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(userLastName) && userLastName != result.UserLastName)
-                projectUpdateForm.UserLastName = userLastName;
+            projectUpdateForm.UserLastName = !string.IsNullOrWhiteSpace(userLastName) ? userLastName : result.UserLastName;
+
 
             Console.Write("Customer: ");
             var customer = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(customer) && customer != result.Customer)
-                projectUpdateForm.Customer = customer;
+            projectUpdateForm.Customer = !string.IsNullOrWhiteSpace(customer) ? customer : result.Customer;
+
 
             Console.Write("Product: ");
             var product = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(product) && product != result.ProductName)
-                projectUpdateForm.ProductName = product;
+            projectUpdateForm.ProductName = !string.IsNullOrWhiteSpace(product) ? product : result.ProductName;
 
             Console.Write("Price: ");
             var price = Console.ReadLine();
@@ -270,12 +269,15 @@ public class MenuDialogs( IProjectService projectService, IProjectRepository pro
             else
                 projectUpdateForm.ProductPrice = result.ProductPrice;  // Keep current price
 
+            Console.WriteLine("-----------------------------------");
+
 
             var updatedProject = await _projectService.UpdateProjectAsync(result.Id, projectUpdateForm);
 
             if (updatedProject != null)
             {
                 Console.WriteLine($"Project updated successfully!");
+                Console.WriteLine();
                 Console.WriteLine($"ID: {projectUpdateForm.Id}");
                 Console.WriteLine($"Title: {projectUpdateForm.Title}");
                 Console.WriteLine($"Description: {projectUpdateForm.Description}");

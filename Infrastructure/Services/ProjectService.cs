@@ -136,8 +136,8 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
             if (projectEntity == null)
                 return Result.NotFound("Project was not found");
 
-           
-            //code by Chat GPT
+
+            //code with help of Chat GPT
             if (!string.IsNullOrEmpty(form.Title))
                 projectEntity.Title = form.Title;
 
@@ -152,23 +152,30 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
 
             if (foundStatus != null)
                 projectEntity.Status = foundStatus;
-            //else
-            //    Console.WriteLine("Status not found for Status: " + form.Status);
 
-            var customer = await _context.Customers
-            .FirstOrDefaultAsync(c => c.CustomerName == form.Customer);
 
-            if (customer != null)
-                projectEntity.Customer = customer;
-            //else
-            //    Console.WriteLine("Customer not found for CustomerName: " + form.Customer);
+            if (!string.IsNullOrEmpty(form.Customer))
+            {
+                var customer = await _context.Customers
+                    .FirstOrDefaultAsync(c => c.CustomerName == form.Customer);
+                if (customer != null)
+                {
+                    projectEntity.Customer = customer;
+                    _context.Entry(customer).State = EntityState.Modified; // Mark Customer as modified
+                }
+            }
 
-            var product = await _context.Products
-            .FirstOrDefaultAsync(p => p.ProductName == form.ProductName);
-            if (product != null)
-                projectEntity.Product = product;
-            //else
-            //    Console.WriteLine("Product not found for ProductName: " + form.ProductName);
+            // Update product if applicable
+            if (!string.IsNullOrEmpty(form.ProductName))
+            {
+                var product = await _context.Products
+                    .FirstOrDefaultAsync(p => p.ProductName == form.ProductName);
+                if (product != null)
+                {
+                    projectEntity.Product = product;
+                    _context.Entry(product).State = EntityState.Modified; // Mark Product as modified
+                }
+            }
 
             if (!string.IsNullOrEmpty(form.UserFirstName) && projectEntity.User != null)
                 projectEntity.User.FirstName = form.UserFirstName;
@@ -188,7 +195,9 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
                 _context.Entry(projectEntity.Product).State = EntityState.Modified;
             }
 
-           
+            //up to here code with the help of Chat GPT
+
+
             var changes = await _context.SaveChangesAsync();
             await _projectRepository.CommitTransactionAsync();
 
@@ -199,8 +208,8 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
             await _projectRepository.RollbackTransactionAsync();
             return Result.Error("Error updating project");
         }
-    }
 
+    }
 
 
     public async Task<IResult> DeleteProjectAsync(int id)
