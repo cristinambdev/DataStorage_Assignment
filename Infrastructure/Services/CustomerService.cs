@@ -25,7 +25,7 @@ public class CustomerService(ICustomerRepository customerRepository) : ICustomer
 
         try
         {
-            
+            // Create new CustomerEntity 
             await _customerRepository.CreateAsync(new CustomerEntity { CustomerName = form.CustomerName});
             await _customerRepository.SaveAsync();
 
@@ -53,7 +53,7 @@ public class CustomerService(ICustomerRepository customerRepository) : ICustomer
         return CustomerFactory.Create(customerEntity!);
     }
 
-    public async Task<Customer?> GetCustomerAsync(string customerName)
+    public async Task<Customer?> GetCustomerByNameAsync(string customerName)
     {
         var customerEntity = await _customerRepository.GetAsync(x => x.CustomerName == customerName);
         return CustomerFactory.Create(customerEntity!);

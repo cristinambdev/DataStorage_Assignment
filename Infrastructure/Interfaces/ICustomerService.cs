@@ -9,7 +9,7 @@ namespace Business.Interfaces
         Task<bool> CustomerExistsAsync(string CustomerName);
         Task DeleteCustomerAsync(int id);
         Task<Customer?> GetCustomerAsync(int id);
-        Task<Customer?> GetCustomerAsync(string customerName);
+        Task<Customer?> GetCustomerByNameAsync(string customerName);
         Task<IEnumerable<Customer?>> GetCustomersAsync();
         Task UpdateCustomerAsync(CustomerUpdateForm customer);
 

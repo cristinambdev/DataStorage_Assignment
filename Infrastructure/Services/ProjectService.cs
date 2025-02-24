@@ -18,18 +18,18 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
     private readonly ICustomerService _customerService = customerService;
     private readonly IProjectRepository _projectRepository = projectRepository;
     private readonly DataContext _context = context;
-  
 
 
 
-    public async Task <IResult> CreateProjectAsync(ProjectRegistrationForm form)
+
+    public async Task<IResult> CreateProjectAsync(ProjectRegistrationForm form)
     {
-        
-        if(form == null)
+
+        if (form == null)
             return Result.BadRequest("Invalid registration form");
-        
+
         //  Check if Customer exists
-        var customer = await _customerService.GetCustomerAsync(form.Customer.CustomerName);
+        var customer = await _customerService.GetCustomerByNameAsync(form.Customer.CustomerName);
         if (customer == null)
         {
             Console.WriteLine();
@@ -40,7 +40,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
                 return Result.Error("Failed to create customer. Please try again.");
             }
 
-            customer = await _customerService.GetCustomerAsync(form.Customer.CustomerName);
+            customer = await _customerService.GetCustomerByNameAsync(form.Customer.CustomerName);
         }
 
         //Start database transaction
@@ -64,7 +64,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
             await _projectRepository.CreateAsync(projectEntity);
             await _projectRepository.SaveAsync();
 
-            
+
             // Commit transaction
             await _projectRepository.CommitTransactionAsync();
             return Result.OK();
@@ -76,7 +76,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
             return Result.Error(ex.Message);
         }
     }
-    
+
     public async Task<IResult> GetAllProjectsAsync()
     {
         var projectEntities = await _projectRepository.GetAllAsync(query =>
@@ -109,7 +109,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
         if (projectEntity == null)
             return Result.NotFound("Project was not found");
 
-        var project = ProjectFactory.Create(projectEntity); 
+        var project = ProjectFactory.Create(projectEntity);
         return Result<Project>.Ok(project);
 
     }
@@ -137,14 +137,13 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
                 return Result.NotFound("Project was not found");
 
 
-            //code with help of Chat GPT
+    //following block of code by Chat GPT
             if (!string.IsNullOrEmpty(form.Title))
                 projectEntity.Title = form.Title;
 
             if (!string.IsNullOrEmpty(form.Description))
                 projectEntity.Description = form.Description;
 
-            // Fetch all StatusType entities into memory and perform the comparison in code.
             var status = await _context.StatusTypes
                 .ToListAsync(); // Fetch all StatusTypes
 
@@ -154,14 +153,15 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
                 projectEntity.Status = foundStatus;
 
 
+            // Update customer if applicable
             if (!string.IsNullOrEmpty(form.Customer))
             {
                 var customer = await _context.Customers
-                    .FirstOrDefaultAsync(c => c.CustomerName == form.Customer);
+                  .FirstOrDefaultAsync(c => c.CustomerName == projectEntity.Customer.CustomerName); // Use existing CustomerName
                 if (customer != null)
                 {
-                    projectEntity.Customer = customer;
-                    _context.Entry(customer).State = EntityState.Modified; // Mark Customer as modified
+                    customer.CustomerName = form.Customer; // Update the fetched entity
+                    _context.Entry(customer).State = EntityState.Modified;  // Mark the fetched Customer as modified
                 }
             }
 
@@ -169,13 +169,14 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
             if (!string.IsNullOrEmpty(form.ProductName))
             {
                 var product = await _context.Products
-                    .FirstOrDefaultAsync(p => p.ProductName == form.ProductName);
+                  .FirstOrDefaultAsync(p => p.ProductName == projectEntity.Product.ProductName); // Use existing ProductName
                 if (product != null)
                 {
-                    projectEntity.Product = product;
-                    _context.Entry(product).State = EntityState.Modified; // Mark Product as modified
+                    product.ProductName = form.ProductName; // Update the fetched entity
+                    _context.Entry(product).State = EntityState.Modified; // Mark the fetched Product as modified
                 }
             }
+
 
             if (!string.IsNullOrEmpty(form.UserFirstName) && projectEntity.User != null)
                 projectEntity.User.FirstName = form.UserFirstName;
@@ -195,7 +196,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
                 _context.Entry(projectEntity.Product).State = EntityState.Modified;
             }
 
-            //up to here code with the help of Chat GPT
+   //up to here code with the help of Chat GPT
 
 
             var changes = await _context.SaveChangesAsync();
@@ -203,7 +204,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
 
             return changes > 0 ? Result.OK() : Result.Error("No changes were made.");
         }
-        catch (Exception ex)
+        catch 
         {
             await _projectRepository.RollbackTransactionAsync();
             return Result.Error("Error updating project");
@@ -223,7 +224,7 @@ public class ProjectService(DataContext context, IProjectRepository projectRepos
                 return Result.NotFound("Project was not found");
 
             var result = await _projectRepository.DeleteAsync(existingProject);
-            
+
             await _projectRepository.CommitTransactionAsync();
 
             return result ? Result.OK() : Result.Error("Unable to delete project");
